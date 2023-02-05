@@ -1,21 +1,6 @@
 import {useMemo, useState} from 'react';
 import Select, {SingleValue} from 'react-select';
-import {Font} from './fonts';
-
-async function loadFont({name, href}: Font) {
-  const fontAlreadyLoaded = document.fonts.check(`10px ${name}`);
-
-  if (!fontAlreadyLoaded) {
-    const fontFace = new FontFace(name, `url(${href})`);
-
-    try {
-      await fontFace.load();
-      document.fonts.add(fontFace);
-    } catch (e) {
-      console.error(`Font ${name} failed to load`);
-    }
-  }
-}
+import {Font, loadFont} from './fonts';
 
 type FontOption = {
   label: string;
@@ -29,31 +14,31 @@ export type FontPickerProps = {
 };
 
 export function FontPicker({options, ...props}: FontPickerProps) {
-  const [loadingFonts, setLoadingFonts] = useState(false);
-  const [fontLoaded, setFontLoaded] = useState(false);
+  const [isFontsLoading, setIsFontsLoading] = useState(false);
+  const [isFontsReady, setIsFontsReady] = useState(false);
 
   const fontOptions = useMemo(
     () => options.map((font) => ({label: font.name, value: font.name})),
     [options]
   );
   const uploadFonts = async () => {
-    if (!fontLoaded && !loadingFonts) {
-      setLoadingFonts(true);
+    if (!isFontsReady && !isFontsLoading) {
+      setIsFontsLoading(true);
 
       const loadAllFonts = options.map((font) => loadFont(font));
       await Promise.all(loadAllFonts);
     }
 
-    setLoadingFonts(false);
-    setFontLoaded(true);
+    setIsFontsLoading(false);
+    setIsFontsReady(true);
   };
 
   return (
     <Select
       value={props.value ? {label: props.value, value: props.value} : null}
       onChange={props.onChange}
-      options={fontLoaded ? fontOptions : undefined}
-      isLoading={loadingFonts}
+      options={isFontsReady ? fontOptions : undefined}
+      isLoading={isFontsLoading}
       onFocus={uploadFonts}
       styles={{
         option: (style, {data}) => ({

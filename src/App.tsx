@@ -1,10 +1,10 @@
 import {useState} from 'react';
-import './App.css';
 import {FontPicker} from './FontPicker';
-import {FONT_LIST} from './fonts';
-import classNames from 'classnames';
+import {DEFAULT_FONT_LIST} from './fonts';
+import {FontUploader} from './FontUploader';
+import './App.css';
 
-function App() {
+export function App() {
   const [font, setFont] = useState<string>();
 
   return (
@@ -15,13 +15,17 @@ function App() {
 
       <div className="select-container">
         <FontPicker
-          options={FONT_LIST}
+          options={DEFAULT_FONT_LIST}
           value={font}
           onChange={(e) => setFont(e?.value)}
+        />
+      </div>
+
+      <div className="uploader-container">
+        <FontUploader
+          onFontUploaded={(font?: string) => font && setFont(font)}
         />
       </div>
     </div>
   );
 }
-
-export default App;
